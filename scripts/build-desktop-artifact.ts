@@ -3328,7 +3328,9 @@ export const validateWindowsPackagedPayload = Effect.fn(
 }) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const fileLimit = input.fileLimit ?? WINDOWS_PACKAGED_PAYLOAD_FILE_LIMIT;
+  const envFileLimit = yield* Config.Int("T3CODE_DESKTOP_WINDOWS_FILE_LIMIT").pipe(Config.option);
+  const fileLimit =
+    input.fileLimit ?? Option.getOrElse(envFileLimit, () => WINDOWS_PACKAGED_PAYLOAD_FILE_LIMIT);
   const isFile = (filePath: string) =>
     fs.stat(filePath).pipe(
       Effect.map((stat) => stat.type === "File"),
